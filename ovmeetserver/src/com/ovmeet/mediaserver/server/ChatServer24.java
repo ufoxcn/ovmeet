@@ -118,9 +118,9 @@ public class ChatServer24 extends ApplicationAdapter
 		ISharedObject isharedobject = getSharedObject(iscope, "userList", false);
 		ISharedObject isharedobject1 = getSharedObject(iscope, "roomInfo", false);
 		ISharedObject userList2 = getSharedObject(iscope, "userList2", false);
-		boolean flag = ((Boolean)isharedobject1.getAttribute("lock")).booleanValue();//房间锁定标志
-		int i = iconnection.getScope().getClients().size();//接入长度
-		int j = Integer.parseInt((String)aobj[1]);//权限标志
+		boolean flag = ((Boolean)isharedobject1.getAttribute("lock")).booleanValue();
+		int i = iconnection.getScope().getClients().size();
+		int j = Integer.parseInt((String)aobj[1]);
 
 		String userName = (String)aobj[0];
 		
@@ -142,16 +142,6 @@ public class ChatServer24 extends ApplicationAdapter
 				IServiceCapableConnection iservicecapableconnection = (IServiceCapableConnection)iconnection;
 				String s = iconnection.getClient().getId();
 				
-				iservicecapableconnection.invoke("setUserID", new Object[] {
-					s
-				});
-
-				iservicecapableconnection.invoke("updateRoomInfo", new Object[] {
-
-						Integer.valueOf(appMaxUser), Boolean.valueOf(true), "科技创造未来，软件服务大众"
-				});
-				
-				
 				
 				iconnection.setAttribute("userID", s);
 				iconnection.setAttribute("userName", userName);
@@ -169,7 +159,6 @@ public class ChatServer24 extends ApplicationAdapter
 				if (userList2.getAttribute(userName) != null)
 				{
 					String s2 = (String)userList2.getAttribute(userName);
-					kickUser(s2);
 					isharedobject.removeAttribute(s2);
 					isharedobject.setAttribute(s, hashmap);
 					isharedobject.endUpdate();
@@ -177,9 +166,7 @@ public class ChatServer24 extends ApplicationAdapter
 				{
 					isharedobject.setAttribute(s, hashmap);
 					isharedobject.endUpdate();
-					userList2.beginUpdate();
-					userList2.setAttribute((String)aobj[0], s);
-					userList2.endUpdate();
+
 				}
 				connList.put(s, iconnection);
 				return true; 
@@ -526,71 +513,8 @@ public class ChatServer24 extends ApplicationAdapter
 		}
 	}
 
-	public void clearWB(String page)
-	{
-		try
-		{
-			ISharedObject isharedobject = getSharedObject(Red5.getConnectionLocal().getScope(), page, false);
-			int i = 1000;
-			if (isharedobject.getAttribute("lastID") != null)
-			{
-				i = ((Integer)isharedobject.getAttribute("lastID")).intValue();
-				for (int j = 1000; j < i; j++)
-					isharedobject.removeAttribute((new StringBuilder(String.valueOf(page))).append(String.valueOf(j)).toString());
-
-				isharedobject.beginUpdate();
-				isharedobject.setAttribute("lastID", new Integer(1000));
-				isharedobject.setAttribute("indexPage", Integer.valueOf(Integer.parseInt(page.substring(4))));
-				isharedobject.endUpdate();
-			}
-		}
-		catch (Exception e)
-		{
-			log.error("clear witeboard error", e);
-		}
-	}
-
-	public void startRecord(String userID, String flvName)
-	{
-		try
-		{
-			System.out.println("user:"+userID+"--"+"flvname:"+flvName);
-			IBroadcastStream s = this.getBroadcastStream(Red5.getConnectionLocal().getScope(), userID);
-			s.saveAs(flvName, true);
-			ISharedObject speakListSo = getSharedObject(Red5.getConnectionLocal().getScope(), "speakList", false);
-			HashMap speaker = (HashMap)speakListSo.getAttribute(userID);
-			speaker.put("isRecord", new Boolean(true));
-			speakListSo.beginUpdate();
-			speakListSo.setAttribute(userID, speaker);
-			speakListSo.endUpdate();
-		}
-		catch (Exception e)
-		{
-			log.error("startRecord(...) Exception", e);
-		}
-	}
-
-	public void stopRecord(String userID)
-	{
-		try
-		{
-			ClientBroadcastStream s = (ClientBroadcastStream)getBroadcastStream(Red5.getConnectionLocal().getScope(), userID);
-			s.stopRecording();
-			ISharedObject isharedobject1 = getSharedObject(Red5.getConnectionLocal().getScope(), "speakList", false);
-			ArrayList arraylist = new ArrayList();
-			isharedobject1.sendMessage("getVodList", arraylist);
-			ISharedObject speakListSo = getSharedObject(Red5.getConnectionLocal().getScope(), "speakList", false);
-			HashMap speaker = (HashMap)speakListSo.getAttribute(userID);
-			speaker.put("isRecord", new Boolean(false));
-			speakListSo.beginUpdate();
-			speakListSo.setAttribute(userID, speaker);
-			speakListSo.endUpdate();
-		}
-		catch (Exception e)
-		{
-			log.error("stopRecord(...) Exception", e);
-		}
-	}
+ 
+ 
 
 	public void setBandwidth(int b)
 	{
